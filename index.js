@@ -19,15 +19,26 @@ app.get('/', function (req, res) {
 	var queryString = "SELECT gid, weekday, blockside, cnnrightle, fromhour, tohour, streetname"+
 		", ST_AsGeoJson(ST_Transform(geom,4326)) AS geometry"+
 		", ST_Distance(geom,ST_GeomFromText('POINT("+point[0]+" "+point[1]+")',2227)) AS distance "+
-		", ST_AsText(ST_ClosestPoint(ST_GeometryN(geom,1), ST_GeomFromText('POINT("+point[0]+" "+point[1]+")',2227))) AS closest_point "+
+		", ST_AsGeoJson(ST_Transform(ST_ClosestPoint(ST_GeometryN(geom,1), ST_GeomFromText('POINT("+point[0]+" "+point[1]+")',2227)),4326)) AS closest_point "+
+		//", ST_AsText(ST_Intersection(ST_MakeLine(ST_MakePoint(ST_XMin(geom),"+point[1]+"),ST_MakePoint(ST_XMax(geom),"+point[0]+")),ST_GeometryN(geom,1)))"+
 		"FROM sfsweeproutes WHERE ST_DWithin(geom,ST_GeomFromText('POINT("+point[0]+" "+point[1]+")',2227),300)"+
-		"ORDER BY distance LIMIT 6;";
+		"ORDER BY distance LIMIT 12;";
 
 	console.log(queryString);
 
 	postgeo.query(queryString,
 		"geojson", function(data) {
-			//console.log(JSON.stringify(data));
+			if (data.features) {
+				data.features = data.features.map(function(f){
+					var pointOnStreet = JSON.parse(f.properties.closest_point).coordinates;
+					var p1 = f.geometry.coordinates[0][0];
+					f.properties.pointOnStreet = pointOnStreet;
+					var vs = [pointOnStreet[0]-p1[0],pointOnStreet[1]-p1[1]];
+					var vp = [req.query.lon-p1[0],req.query.lat-p1[1]];
+					f.properties.side = (vs[0]*vp[1]-vs[1]*vp[0])<0? "R" : "L";
+					return f;
+				});
+			}
 			console.log(data.features||data);
 			res.send(JSON.stringify(data));
 		});
