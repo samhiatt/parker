@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/samhiatt/parker",
   "dependencies": {
+    "express": "^4.13.3",
     "postgeo": "^0.1.2",
     "proj4": "^2.3.10"
   }
