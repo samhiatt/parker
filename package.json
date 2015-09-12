@@ -15,5 +15,9 @@
   "bugs": {
     "url": "https://github.com/samhiatt/parker/issues"
   },
-  "homepage": "https://github.com/samhiatt/parker"
+  "homepage": "https://github.com/samhiatt/parker",
+  "dependencies": {
+    "postgeo": "^0.1.2",
+    "proj4": "^2.3.10"
+  }
 }
