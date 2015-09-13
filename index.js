@@ -9,6 +9,14 @@ var express = require('express');
 //require('dotenv').load();
 var app = express();
 
+var dbUri="postgress://"+process.env.RDS_USERNAME+":"+
+	process.env.RDS_PASSWORD+"@"+process.env.RDS_HOSTNAME+
+	":"+process.env.RDS_PORT+"/"+process.env.RDS_DB_NAME;
+
+//var dbUri = process.env.PG_DB_URI || "postgress://localhost/parker";
+postgeo.connect(dbUri);
+console.log("Connected to "+dbUri.replace(/(\/\/).*@/,'$1'));
+
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
@@ -62,10 +70,6 @@ app.get('/query', function (req, res) {
 			res.send(JSON.stringify(data));
 		});
 });
-
-var dbUri = process.env.PG_DB_URI || "postgress://localhost/parker";
-postgeo.connect(dbUri);
-console.log("Connected to "+dbUri.replace(/(\/\/).*@/,'$1'));
 
 var server = app.listen(process.env.PORT || 3000, function () {
 	var host = server.address().address;
