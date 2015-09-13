@@ -6,7 +6,7 @@ var postgeo = require("postgeo");
 var path = require("path");
 var proj4 = require("proj4");
 var express = require('express');
-require('dotenv').load();
+//require('dotenv').load();
 var app = express();
 
 app.set('views', path.join(__dirname, 'views'));
