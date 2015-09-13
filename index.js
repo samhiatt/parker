@@ -1,13 +1,30 @@
 /**
  * Created by sam on 9/12/15.
  */
+var compress = require('compression');
 var postgeo = require("postgeo");
+var path = require("path");
 var proj4 = require("proj4");
 var express = require('express');
 require('dotenv').load();
 var app = express();
 
-app.get('/', function (req, res) {
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'jade');
+
+app.use(express.static(__dirname + '/node_modules/leaflet/dist/'));
+app.use(express.static(__dirname + '/public/'));
+
+app.use(compress());
+
+app.get('/',function(req,res){
+
+	res.render('index', {
+		title: "SF Parker"
+	});
+});
+
+app.get('/query', function (req, res) {
 	if (!req.query.lat || !req.query.lon) {
 		res.status(400).send("Expected 'lat' and 'lon' query params.");
 		return;
@@ -54,7 +71,7 @@ var server = app.listen(3000, function () {
 	var host = server.address().address;
 	var port = server.address().port;
 
-	console.log('Example app listening at http://%s:%s', host, port);
+	console.log('Server listening at http://%s:%s', host, port);
 });
 
 proj4.defs([
