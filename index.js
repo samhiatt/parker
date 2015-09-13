@@ -41,6 +41,7 @@ app.get('/', function (req, res) {
 				});
 			}
 			console.log(data.features||data);
+			res.header('content-type', 'text/javascript');
 			res.send(JSON.stringify(data));
 		});
 });
