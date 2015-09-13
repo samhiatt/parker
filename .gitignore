@@ -1,5 +1,6 @@
 .*
 !.gitignore
+!.ebextensions
 node_modules
 
 # Elastic Beanstalk Files
