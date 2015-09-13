@@ -4,6 +4,7 @@
 var postgeo = require("postgeo");
 var proj4 = require("proj4");
 var express = require('express');
+require('dotenv').load();
 var app = express();
 
 app.get('/', function (req, res) {
@@ -44,7 +45,9 @@ app.get('/', function (req, res) {
 		});
 });
 
-postgeo.connect("postgres://localhost/sam");
+var dbUri = process.env.PG_DB_URI || "postgress://localhost/parker";
+postgeo.connect(dbUri);
+console.log("Connected to "+dbUri.replace(/(\/\/).*@/,'$1'));
 
 var server = app.listen(3000, function () {
 	var host = server.address().address;
