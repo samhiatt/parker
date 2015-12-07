@@ -16,20 +16,33 @@ require('moment-timezone');
 //	january: 0, february: 1, march: 2, april: 3, june: 5, july: 6, august: 7, september: 8, 
 //	october: 9, november: 10, december: 11,
 //};
-var DaysOfWeek:{[dayName:string]:number} = {
-	sun: 0, mon: 1, tues: 2, weds: 3, thurs: 4, fri: 5, sat: 6
+var DaysOfWeek:any = {
+	sun: 0, mon: 1, tue: 2, tues: 2, wed: 3, weds: 3, thu: 4, thurs: 4, fri: 5, sat: 6,
+	0: 'Sun', 1: 'Mon', 2: 'Tue', 3: 'Wed', 4: 'Thu', 5: 'Fri', 6: 'Sat'
 };
 
+function getHrsMins(hrsMinsStr:string):{hours:number,minutes:number,seconds:number}{
+	var hrsMinsArr = hrsMinsStr.split(':');
+	return {
+		hours: parseInt(hrsMinsArr[0]),
+		minutes: (hrsMinsArr.length>1)? parseInt(hrsMinsArr[1]) : 0,
+		seconds: 0
+	};
+}
+
 export class Schedule{
-	startHour:number;
-	endHour:number;
+	_startHour:{hours:number,minutes:number,seconds:number};
+	_endHour:{hours:number,minutes:number,seconds:number};
+	_daysOfWeek:number[];
+	startHour:string;
+	endHour:string;
 	timezone:string;
-	daysOfWeek:number[];
+	daysOfWeek:string[];
 	weeksOfMonth:number[];
 	holidays:boolean;
 	constructor(
-		startHour:number, 
-		endHour:number, 
+		startHour:string, 
+		endHour:string, 
 		daysOfWeek:any[], 
 		weeksOfMonth:number[],
 	  timezone:string="America/Los_Angeles",
@@ -37,11 +50,25 @@ export class Schedule{
 	){
 		this.startHour = startHour;
 		this.endHour = endHour;
-		this.daysOfWeek = (typeof daysOfWeek[0]=='string')? daysOfWeek.map(function(dow:string){
+		this._startHour = getHrsMins(startHour);
+		this._endHour = getHrsMins(endHour);
+		this._daysOfWeek = (typeof daysOfWeek[0]=='string')? daysOfWeek.map(function(dow:string){
 			return DaysOfWeek[dow.toLowerCase()] }) : daysOfWeek;
+		this.daysOfWeek = this._daysOfWeek.map(function(dow:number){ return DaysOfWeek[dow] });
 		this.weeksOfMonth = weeksOfMonth? weeksOfMonth : [1,2,3,4,5];
 		this.timezone = timezone;
 		this.holidays = holidays;
+	}
+	
+	toJSON():any{
+		return {
+			startHour: this.startHour,
+			endHour: this.startHour,
+			daysOfWeek: this.daysOfWeek,
+			weeksOfMonth: this.weeksOfMonth,
+			timezone: this.timezone,
+			holidays: this.holidays
+		};
 	}
 	
 	/* 
@@ -59,10 +86,10 @@ export class Schedule{
 		
 		function checkDay(date:moment.Moment):boolean{
 			var weekOfMonth = Math.floor((date.date()-1)/7)+1;
-			//console.log(date.toLocaleString(),weekOfMonth);
-			if (self.daysOfWeek.indexOf(date.day())==-1) return false;
+			//console.log(date.toLocaleString(),weekOfMonth,self._startHour.hours,self._endHour.hours,self.daysOfWeek);
+			if (self._daysOfWeek.indexOf(date.day())==-1) return false;
 			if (self.weeksOfMonth.indexOf(weekOfMonth)==-1) return false;
-			var endTime = date.clone().set({hour:self.endHour,minute:0,second:0});
+			var endTime = date.clone().set(self._endHour);
 			//console.log("end", endTime.toLocaleString());
 			return (fromMoment<endTime);
 		};
@@ -70,8 +97,8 @@ export class Schedule{
 		var nextStart = fromMoment.clone();
 		
 		while (!checkDay(nextStart)) nextStart.date(nextStart.date()+1);
-		nextStart.set({hour:this.startHour,minute:0,second:0});
-		var nextEnd = nextStart.clone().set({hours:this.endHour});
+		nextStart.set(this._startHour);
+		var nextEnd = nextStart.clone().set(this._endHour);
 		//console.log("returning",nextStart.toLocaleString(),nextEnd.toLocaleString());
 		
 		return moment.range(nextStart,nextEnd);

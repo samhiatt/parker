@@ -9,4 +9,5 @@ node_modules
 !.elasticbeanstalk/*.global.yml
 
 common/schedule.js*
+index.js*
 typings

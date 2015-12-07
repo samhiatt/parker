@@ -9,12 +9,12 @@ describe('schedule', function() {
   var Schedule = require('../common/schedule').Schedule;
   
   describe('timezones',function(){
-    var schedule = new Schedule(12,14,[2,4]);
+    var schedule = new Schedule("12:00","14:00",[2,4]);
     it('checks default timezone=="America/Los_Angeles"', function () {
       assert.equal(schedule.timezone,'America/Los_Angeles');
     });
     it('checks setting alternative timezone', function () {
-      var schedule = new Schedule(12,14,[2,4],null,'America/New_York');
+      var schedule = new Schedule("12:00","14:00",[2,4],null,'America/New_York');
       assert.equal(schedule.timezone,'America/New_York');
     });
   });
@@ -30,10 +30,10 @@ describe('schedule', function() {
     }
     describe('test date input formats',function(){
         
-      var schedule = new Schedule(5, 7, [2, 4]);
+      var schedule = new Schedule("05:00", "07:00", [2, 4]);
   
       describe('next event from now', function () {
-        var nextEvent = schedule.nextEvent(null);
+        var nextEvent = schedule.nextEvent();
         checkEvent(nextEvent, moment());
       });
       describe("nextEvent('2015-01-01')", function () {
@@ -62,7 +62,7 @@ describe('schedule', function() {
     describe('test schedules',function() {
       describe('1st and 3rd Mon and Weds, from 5am to 7am', function () {
         // 2, 7, 16, 21
-        var schedule = new Schedule(5, 7, ['Mon','Weds'], [1, 3]);
+        var schedule = new Schedule("05:00", "07:00", ['Mon','Weds'], [1, 3]);
         describe('test from Dec 1st', function () {
           var date = moment('2015-12-01T03:00');
           var nextEvent = schedule.nextEvent(date);
@@ -82,7 +82,7 @@ describe('schedule', function() {
       });
       describe('2nd and 4th Mon and Weds, from 5am to 7am', function () {
         // 9, 14, 23, 28
-        var schedule = new Schedule(5, 7, ['Mon','Weds'], [2, 4]);
+        var schedule = new Schedule("05:00", "07:00", ['Mon','Weds'], [2, 4]);
         describe('test from Dec 1st', function () {
           var date = moment('2015-12-01T03:00');
           var nextEvent = schedule.nextEvent(date);
@@ -119,7 +119,7 @@ describe('schedule', function() {
       });
       describe('1st and 3rd Tues and Thurs, from 7am to 9am', function () {
         // 1, 3, 15, 17
-        var schedule = new Schedule(7, 9, ['Tues','Thurs'], [1, 3]);
+        var schedule = new Schedule("07:00", "09:00", ['Tues','Thurs'], [1, 3]);
         describe('test from Dec 1st', function () {
           var date = moment('2015-12-01T03:00');
           var nextEvent = schedule.nextEvent(date);
