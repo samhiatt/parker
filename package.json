@@ -23,7 +23,15 @@
     "express": "^4.13.3",
     "jade": "^1.11.0",
     "leaflet": "^0.7.5",
+    "moment": "^2.10.6",
+    "moment-range": "^2.0.3",
+    "moment-timezone": "^0.4.1",
     "postgeo": "^0.1.2",
     "proj4": "^2.3.10"
+  },
+  "devDependencies": {
+    "mocha": "^2.3.4",
+    "tsd": "^0.6.5",
+    "typescript": "^1.7.3"
   }
 }
