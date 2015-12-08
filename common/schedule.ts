@@ -63,7 +63,7 @@ export class Schedule{
 	toJSON():any{
 		return {
 			startHour: this.startHour,
-			endHour: this.startHour,
+			endHour: this.endHour,
 			daysOfWeek: this.daysOfWeek,
 			weeksOfMonth: this.weeksOfMonth,
 			timezone: this.timezone,

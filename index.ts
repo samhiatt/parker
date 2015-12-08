@@ -45,12 +45,18 @@ app.get('/query', function (req:Request,res:Response) {
 	
 	var point = transform.forward([parseFloat(req.query.lon),parseFloat(req.query.lat)]);
 	//var point = transform.forward([-122.444,37.72]);
-	console.log("Request for point: ",point);
+	var heading:number = parseFloat(req.query.heading)+90;
+	var streetSide:string;
+	if (heading<=0 && heading<90) streetSide ='NorthWest';
+	else if (heading<90 && heading<180) streetSide ='SouthWest';
+	else if (heading<180 && heading<270) streetSide ='SouthEast';
+	else if (heading<270 && heading<360) streetSide ='NorthEast';
+	console.log("Request for point: ",point,(heading!=null)?"heading:"+streetSide:"");
 	
 	var queryString = "SELECT gid, weekday, week1ofmon, week2ofmon, week3ofmon, week4ofmon, week5ofmon, blockside, "+
 		" cnnrightle, fromhour, tohour, streetname, ST_AsGeoJson(ST_Transform(geom,4326)) AS geometry"+
 		", ST_Distance(geom,ST_GeomFromText('POINT("+point[0]+" "+point[1]+")',2227)) AS distance "+
-		", ST_AsGeoJson(ST_Transform(ST_ClosestPoint(ST_GeometryN(geom,1), ST_GeomFromText('POINT("+point[0]+" "+point[1]+")',2227)),4326)) AS nearest_point "+
+		", ST_AsGeoJson(ST_Transform(ST_ClosestPoint(ST_GeometryN(geom,1), ST_GeomFromText('POINT("+point[0]+" "+point[1]+")',2227)),4326)) AS closest_point "+
 		//", ST_AsText(ST_Intersection(ST_MakeLine(ST_MakePoint(ST_XMin(geom),"+point[1]+"),ST_MakePoint(ST_XMax(geom),"+point[0]+")),ST_GeometryN(geom,1)))"+
 		"FROM sfsweeproutes WHERE ST_DWithin(geom,ST_GeomFromText('POINT("+point[0]+" "+point[1]+")',2227),300)"+
 		"ORDER BY distance LIMIT 12;";
@@ -66,8 +72,8 @@ app.get('/query', function (req:Request,res:Response) {
 				[1,2,3,4,5].forEach(function(week){
 					if(props['week'+week+'ofmon']) props.weeks.push(week);
 				});
-				props.nearest_point = JSON.parse(props.nearest_point);
-				var pointOnStreet = props.nearest_point.coordinates;
+				props.closest_point = JSON.parse(props.closest_point);
+				var pointOnStreet = props.closest_point.coordinates;
 				var p1 = feature.geometry.coordinates[0][0];
 				var vs = [pointOnStreet[0]-p1[0],pointOnStreet[1]-p1[1]];
 				var vp = [req.query.lon-p1[0],req.query.lat-p1[1]];

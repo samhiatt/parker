@@ -31,6 +31,12 @@
     },
     "geojson/geojson.d.ts": {
       "commit": "1bf24a2f60a3d4a66aaf75be976a3b3d399ee4ca"
+    },
+    "leaflet/leaflet.d.ts": {
+      "commit": "8cd79728efa7652d934b2703feeb68bb4802aebb"
+    },
+    "d3/d3.d.ts": {
+      "commit": "8cd79728efa7652d934b2703feeb68bb4802aebb"
     }
   }
 }
