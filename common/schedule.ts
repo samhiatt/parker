@@ -42,7 +42,7 @@ export class Schedule{
 	daysOfWeek:string[];
 	weeksOfMonth:number[];
 	holidays:boolean;
-	nextEvent:Range;
+	nextSweeping:Range;
 	constructor(
 		startHour:string, 
 		endHour:string, 
@@ -64,13 +64,15 @@ export class Schedule{
 	}
 	
 	toJSON():any{
+		if (!this.nextSweeping) this.nextSweeping = this.next();
 		return {
 			startHour: this.startHour,
 			endHour: this.endHour,
 			daysOfWeek: this.daysOfWeek,
 			weeksOfMonth: this.weeksOfMonth,
 			timezone: this.timezone,
-			holidays: this.holidays
+			holidays: this.holidays,
+			nextSweeping: this.nextSweeping
 		};
 	}
 	

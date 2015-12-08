@@ -45,7 +45,7 @@ export class StreetSection implements Feature {
 		leftSideAddressEnd: number;
 		rightSideAddressStart: number;
 		rightSideAddressEnd: number;
-		bestGuess?: boolean;
+		bestGuess?: string;
 	};
 	constructor(feature:Feature){
 		this.geometry = feature.geometry;
@@ -126,6 +126,6 @@ export function createSchedule(properties:SweepScheduleProperties):schedule.Sche
 	var daysOfWeek = (properties.weekday=='Holiday' || properties.weekday=='')? 
 		['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] : [properties.weekday]; // TODO: verify what 'Holday' or '' means
 	var sched:schedule.Schedule = new schedule.Schedule(properties.fromhour,properties.tohour,daysOfWeek, weeks);
-	sched.nextEvent = sched.next();
+	sched.nextSweeping = sched.next();
 	return sched;
 }
