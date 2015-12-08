@@ -8,5 +8,9 @@
   },
   "exclude": [
     "node_modules"
+  ],
+  "references": [
+    "./common/schedule.ts",
+    "./common/sfsweeproutes.ts"
   ]
 }

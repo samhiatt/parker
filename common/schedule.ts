@@ -8,6 +8,7 @@
  TODO: include holiday exceptions (find list of holidays)
  */
 import moment = require('moment');
+import Range = moment.Range;
 require('moment-range');
 require('moment-timezone');
 
@@ -40,6 +41,7 @@ export class Schedule{
 	daysOfWeek:string[];
 	weeksOfMonth:number[];
 	holidays:boolean;
+	nextEvent:Range;
 	constructor(
 		startHour:string, 
 		endHour:string, 
@@ -74,7 +76,7 @@ export class Schedule{
 	/* 
 	 * Get the next scheduled event, starting from fromMoment (default now).
 	 */
-	nextEvent(
+	next(
 			fromMoment?:moment.Moment
 	):moment.Range{
 		if (!fromMoment) fromMoment = moment().tz(this.timezone).local();
@@ -86,7 +88,7 @@ export class Schedule{
 		
 		function checkDay(date:moment.Moment):boolean{
 			var weekOfMonth = Math.floor((date.date()-1)/7)+1;
-			//console.log(date.toLocaleString(),weekOfMonth,self._startHour.hours,self._endHour.hours,self.daysOfWeek);
+			console.log(date.toLocaleString(),weekOfMonth,self._startHour.hours,self._endHour.hours,self.daysOfWeek);
 			if (self._daysOfWeek.indexOf(date.day())==-1) return false;
 			if (self.weeksOfMonth.indexOf(weekOfMonth)==-1) return false;
 			var endTime = date.clone().set(self._endHour);
