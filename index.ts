@@ -30,7 +30,7 @@ app.set('view engine', 'jade');
 app.use(express.static(__dirname + '/node_modules/leaflet/dist/'));
 app.use(express.static(__dirname + '/public/'));
 
-app.use(compress());
+app.use(compress({}));
 
 app.get('/',function(req:Request,res:Response){
 
@@ -72,24 +72,8 @@ app.get('/query', function (req:Request,res:Response) {
 		if (data.features) {
 			console.log("Retrieved " + data.features.length + " features.");
 			
-			data.features = sfs.combineAndTransformFeatures(data.features);
+			data = new sfs.SweepScheduleFeatureGroup(data.features);
 			
-			//data.features = data.features.map(function(feature:Feature){
-			//	var props = feature.properties;
-			//	props.weeks=[];
-			//	[1,2,3,4,5].forEach(function(week){
-			//		if(props['week'+week+'ofmon']) props.weeks.push(week);
-			//	});
-			//	props.nearest_point = JSON.parse(props.nearest_point);
-			//	var pointOnStreet = props.nearest_point.coordinates;
-			//	var p1 = feature.geometry.coordinates[0][0];
-			//	var vs = [pointOnStreet[0]-p1[0],pointOnStreet[1]-p1[1]];
-			//	var vp = [req.query.lon-p1[0],req.query.lat-p1[1]];
-			//	props.side = (vs[0]*vp[1]-vs[1]*vp[0])<0? "R" : "L";
-			//	props.schedule = new Schedule(props.fromhour,props.tohour,props.weekday.split(','),props.weeks);
-			//	props.nextCleaning = props.schedule.next();
-			//	return feature;
-			//});
 		}
 		//console.log(data.features||data);
 		res.header('content-type', 'text/javascript');

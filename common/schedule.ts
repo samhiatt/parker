@@ -7,8 +7,9 @@
  and (optionally) each specified week of the month. 
  TODO: include holiday exceptions (find list of holidays)
  */
-import moment = require('moment');
 import Range = moment.Range;
+import Moment = moment.Moment;
+var moment = require('moment');
 require('moment-range');
 require('moment-timezone');
 
@@ -19,7 +20,7 @@ require('moment-timezone');
 //};
 var DaysOfWeek:any = {
 	sun: 0, mon: 1, tue: 2, tues: 2, wed: 3, weds: 3, thu: 4, thurs: 4, fri: 5, sat: 6,
-	0: 'Sun', 1: 'Mon', 2: 'Tue', 3: 'Wed', 4: 'Thu', 5: 'Fri', 6: 'Sat'
+	'0': 'Sun', '1': 'Mon', '2': 'Tue', '3': 'Wed', '4': 'Thu', '5': 'Fri', '6': 'Sat'
 };
 
 function getHrsMins(hrsMinsStr:string):{hours:number,minutes:number,seconds:number}{
@@ -73,12 +74,23 @@ export class Schedule{
 		};
 	}
 	
+	addDaysOfWeek(days:string[]):void{
+		days.forEach((day:string)=>{
+			var dayInt:number = DaysOfWeek[day.toLowerCase()];
+			if (this._daysOfWeek.indexOf(dayInt)==-1) this._daysOfWeek.push(dayInt);
+		});
+		// re-construct daysOfWeek
+		this.daysOfWeek=this._daysOfWeek.map(day=>{
+			return DaysOfWeek[day.toString()];
+		});
+	}
+	
 	/* 
 	 * Get the next scheduled event, starting from fromMoment (default now).
 	 */
 	next(
-			fromMoment?:moment.Moment
-	):moment.Range{
+			fromMoment?:Moment
+	):Range{
 		if (!fromMoment) fromMoment = moment().tz(this.timezone).local();
 		else if (fromMoment instanceof Date)
 			fromMoment = moment(fromMoment.toISOString()).local();
@@ -86,11 +98,11 @@ export class Schedule{
 			fromMoment = moment.tz(fromMoment,this.timezone).local();
 		var self = this;
 		
-		function checkDay(date:moment.Moment):boolean{
+		function checkDay(date:Moment):boolean{
 			var weekOfMonth = Math.floor((date.date()-1)/7)+1;
-			console.log(date.toLocaleString(),weekOfMonth,self._startHour.hours,self._endHour.hours,self.daysOfWeek);
-			if (self._daysOfWeek.indexOf(date.day())==-1) return false;
-			if (self.weeksOfMonth.indexOf(weekOfMonth)==-1) return false;
+			//console.log("CT:",ct,date.toLocaleString(),weekOfMonth,self._startHour.hours,self._endHour.hours,"today",self.daysOfWeek);
+			if (self._daysOfWeek && self._daysOfWeek.indexOf(date.day())==-1) return false;
+			if (self.weeksOfMonth && self.weeksOfMonth.indexOf(weekOfMonth)==-1) return false;
 			var endTime = date.clone().set(self._endHour);
 			//console.log("end", endTime.toLocaleString());
 			return (fromMoment<endTime);
@@ -98,7 +110,8 @@ export class Schedule{
 
 		var nextStart = fromMoment.clone();
 		
-		while (!checkDay(nextStart)) nextStart.date(nextStart.date()+1);
+		var ct = 0;
+		while (!checkDay(nextStart) && ct++<31) nextStart.date(nextStart.date()+1);
 		nextStart.set(this._startHour);
 		var nextEnd = nextStart.clone().set(this._endHour);
 		//console.log("returning",nextStart.toLocaleString(),nextEnd.toLocaleString());

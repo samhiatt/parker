@@ -1,14 +1,16 @@
 import Map = L.Map;
 import LatLng = L.LatLng;
 import Feature = GeoJSON.Feature;
-import ILayer = L.ILayer;
 import Marker = L.Marker;
 import PathOptions = L.PathOptions;
+import {StreetSection} from "../common/sfsweeproutes";
 /**
  * Created by sam on 9/12/15.
  */
 
 var map:Map = L.map('map');
+
+var layers = L.featureGroup().addTo(map);
 
 map.setView([37.77,-122.44], 15);
 
@@ -27,15 +29,16 @@ map.on('click',function(e:any){
 			console.error(err);
 			return;
 		}
-		var first=true;
-		console.log("Got response:",err,data);
-		data.features.forEach(function(feature:Feature){
-			if (first && streetSide.indexOf(feature.properties.blockside)>-1){
-				feature.properties.bestGuess=true;
-				first = false;
-			}
+		layers.clearLayers();
+
+		var nearest:StreetSection;
+		data.features.forEach((feature:StreetSection) => {
+			//if (feature.properties.distanceFromPoint<100) feature.properties.bestGuess = true;console.log(feature.properties)
+			if (!nearest || feature.properties.distanceFromPoint<nearest.properties.distanceFromPoint) nearest = feature;
 		});
-		L.geoJson(data, {
+		if (nearest) nearest.properties['bestGuess']=true;
+
+		layers.addLayer(L.geoJson(data, {
 			style: function (feature:Feature):PathOptions {
 				return {
 					color: (feature.properties.bestGuess)? 'red' : 'blue'
@@ -44,12 +47,13 @@ map.on('click',function(e:any){
 			},
 			onEachFeature: function (feature:Feature, layer:any) {
 				//layer.bindPopup(JSON.stringify(feature.properties));
+				//var self = this;
 				layer.on('click',function(event:any){
-					console.log(feature,event)
+					console.log(feature.properties,feature.properties.schedules);
 				});
 				//console.log(feature);
 			}
-		}).addTo(map);
+		}));
 	});
 });
 
