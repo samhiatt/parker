@@ -1,10 +1,18 @@
 
 ## Database Setup
 #### Install system dependencies
-`brew install gdal --with-postgresql`
+`#brew install gdal --with-postgresql`  
 
 #### Install PostGIS db 
-Follow directions [here](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Appendix.PostgreSQL.CommonDBATasks.html#Appendix.PostgreSQL.CommonDBATasks.PostGIS) to install and configure PostGIS on Amazon RDS.  
+##### On AWS RDS
+Follow directions [here](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Appendix.PostgreSQL.CommonDBATasks.html#Appendix.PostgreSQL.CommonDBATasks.PostGIS) to install and configure PostGIS on Amazon RDS.
+
+##### On Mac OS X
+`brew install postgis`  
+* Manually start postgresql:   
+`pg_ctl -D /usr/local/var/postgres -l /usr/local/var/postgres/server.log start`  
+* Manually stop:  
+`pg_ctl -D /usr/local/var/postgres stop -s -m fast`  
 
 #### Configure db connection
 Edit ~/.pgpass, adding the following:
@@ -19,6 +27,10 @@ Direct link: http://apps.sfgov.org/datafiles/view.php?file=PublicWorks/sfsweepro
 
 #### Import data into db
 `ogr2ogr -f "PostgreSQL" -a_srs "EPSG:2227" PG:"host=<db_hostname> user=<db_username> dbname=<dbname>" /path/to/sfsweeproutes.shp`
+
+To rename the geometry column, run:  
+`alter table sfsweeproutes rename column wkb_geometry to geom;`  
+
 I wasn't able to get ogr2ogr to work with the remote, RDS db instance. I ended up importing to a local db, then restored to RDS instance with the following commands:
 `pg_dump  -t sfsweeproutes --no-owner sam > sfsweeproutes.dump.sql`
 `psql -h <remote_hostname> -p 5432 -U <master_username> <dbname> -f sfsweeproutes.dump.sql`
