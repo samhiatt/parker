@@ -25,13 +25,16 @@ export class SweepScheduleProperties {
 	zip_code: number;
 	cnnrightle: string;
 	holidays: string;
-	//nearest_point: Point;
 	distance: number;
 	
 	constructor(properties?:any){
 		
 	}
 }
+
+var DirectionsDict:{[dir:string]:string} = {
+	N:"North",NW:"NorthWest",W:"West",SW:"Southwest",S:"South",SE:"SouthEast",E:"East",NE:"NorthEast"
+};
 
 export class StreetSection implements Feature {
 	type:string="Feature";
@@ -41,11 +44,12 @@ export class StreetSection implements Feature {
 		streetName: string;
 		neighborhood: string;
 		distanceFromPoint: number;
-		leftSideAddressStart: number;
-		leftSideAddressEnd: number;
-		rightSideAddressStart: number;
-		rightSideAddressEnd: number;
-		bestGuess?: string;
+		leftSideAddressStart: string;
+		leftSideAddressEnd: string;
+		rightSideAddressStart: string;
+		rightSideAddressEnd: string;
+		guessedStreetSide?: string;
+		nearest?:boolean;
 	};
 	constructor(feature:Feature){
 		this.geometry = feature.geometry;
@@ -95,18 +99,57 @@ export class StreetSection implements Feature {
 		
 		return this;
 	}
+	/*
+	 * Given the direction the car is facing (in degrees), return the street side for the sweeping schedule.
+	 * Will return one of
+	 */
+	getStreetSide(heading:number):string{
+		var rightDoorFaces:string;
+		heading += 90; // 90 degree offset to point towards curb
+		if (heading >= 360) heading = 0;
+		if (heading >= 0  && heading < 90) rightDoorFaces = 'NorthEast';
+		else if (heading >= 90 && heading < 180) rightDoorFaces = 'SouthEast';
+		else if (heading >= 180 && heading < 270) rightDoorFaces = 'SouthWest';
+		else if (heading >=270 && heading < 360) rightDoorFaces = 'NorthWest';
+		//if ((heading >= 315 && heading < 360)||(heading >= 0  && heading < 45)) rightDoorFaces = 'North';
+		//else if (heading >= 45 && heading < 135) rightDoorFaces = 'East';
+		//else if (heading >= 135 && heading < 225) rightDoorFaces = 'South';
+		//else if (heading >=225 && heading < 315) rightDoorFaces = 'West';
+		
+		console.log(rightDoorFaces);
+		
+		for (var side in this.properties.schedules) {
+			if (this.properties.schedules.hasOwnProperty(side)) {
+				if (side == rightDoorFaces
+						|| side.indexOf(rightDoorFaces) > -1
+						|| rightDoorFaces.indexOf(side) > -1
+				) return side;
+				else if (rightDoorFaces.length > 5) {
+					if (side.indexOf(rightDoorFaces.slice(0, 5)) > -1
+							|| side.indexOf(rightDoorFaces.slice(5)) > -1
+					) return side;
+				}
+			}
+		}
+		return 'both'; // Default to both sides
+	}
 }
 
 export class SweepScheduleFeatureGroup implements FeatureCollection {
 	type:string='FeatureCollection';
 	features:StreetSection[]=[];
+	//nearest: StreetSection;
 	constructor(features?:Feature[]){
 		if (features) features.forEach(feature=>this.merge(feature));
 	}
 	merge(feature:Feature):StreetSection{
 		var section = new StreetSection(feature);
 		for (var i=0; i<this.features.length; i++){
-			if (this.features[i].matches(section)) return this.features[i].merge(section);
+			if (this.features[i].matches(section)) {
+				//if (!this.nearest || this.nearest.properties.distanceFromPoint<section.properties.distanceFromPoint) {}
+				//	this.nearest = section;
+				return this.features[i].merge(section);
+			}
 		}
 		this.features.push(section);
 		return section;

@@ -5,6 +5,7 @@ import 'lodash';
 import {Request, Response} from "express";
 import FeatureCollection = GeoJSON.FeatureCollection;
 import Feature = GeoJSON.Feature;
+import {StreetSection} from "./common/sfsweeproutes";
 var sfs = require('./common/sfsweeproutes');
 var compress = require('compression');
 var postgeo = require("postgeo");
@@ -48,13 +49,7 @@ app.get('/query', function (req:Request,res:Response) {
 	
 	var point = transform.forward([parseFloat(req.query.lon),parseFloat(req.query.lat)]);
 	//var point = transform.forward([-122.444,37.72]);
-	var heading:number = parseFloat(req.query.heading)+90;
-	var streetSide:string;
-	if (heading<=0 && heading<90) streetSide ='NorthWest';
-	else if (heading<90 && heading<180) streetSide ='SouthWest';
-	else if (heading<180 && heading<270) streetSide ='SouthEast';
-	else if (heading<270 && heading<360) streetSide ='NorthEast';
-	console.log("Request for point: ",point,(heading!=null)?"heading:"+streetSide:"");
+	console.log("Request for point: ",point);
 	
 	var queryString = "SELECT weekday, week1ofmon, week2ofmon, week3ofmon, week4ofmon, week5ofmon, blockside, "+
 		" lf_fadd, lf_toadd, rt_toadd, rt_fadd, holidays, nhood, zip_code " +
@@ -73,6 +68,12 @@ app.get('/query', function (req:Request,res:Response) {
 			console.log("Retrieved " + data.features.length + " features.");
 			
 			data = new sfs.SweepScheduleFeatureGroup(data.features);
+			if (req.query.heading) {
+				var heading:number = parseFloat(req.query.heading);
+				data.features.forEach((streetSection:StreetSection)=>{
+					streetSection.properties.guessedStreetSide = streetSection.getStreetSide(heading);
+				});
+			}
 			
 		}
 		//console.log(data.features||data);
