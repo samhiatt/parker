@@ -36,21 +36,23 @@ var DirectionsDict:{[dir:string]:string} = {
 	N:"North",NW:"NorthWest",W:"West",SW:"Southwest",S:"South",SE:"SouthEast",E:"East",NE:"NorthEast"
 };
 
+export interface IStreetSectionProps {
+	schedules: {[streetSide:string]:schedule.Schedule};
+	streetName: string;
+	neighborhood: string;
+	distanceFromPoint: number;
+	leftSideAddressStart: string;
+	leftSideAddressEnd: string;
+	rightSideAddressStart: string;
+	rightSideAddressEnd: string;
+	guessedStreetSide?: string;
+	nearest?:boolean;
+}
+
 export class StreetSection implements Feature {
 	type:string="Feature";
 	geometry:GeometryObject;
-	properties:{
-		schedules: {[streetSide:string]:schedule.Schedule};
-		streetName: string;
-		neighborhood: string;
-		distanceFromPoint: number;
-		leftSideAddressStart: string;
-		leftSideAddressEnd: string;
-		rightSideAddressStart: string;
-		rightSideAddressEnd: string;
-		guessedStreetSide?: string;
-		nearest?:boolean;
-	};
+	properties:IStreetSectionProps;
 	constructor(feature:Feature){
 		this.geometry = feature.geometry;
 		var schedules:{[blockSide:string]:schedule.Schedule}={};

@@ -77,6 +77,7 @@ app.get('/query', function (req:Request,res:Response) {
 			
 		}
 		//console.log(data.features||data);
+		res.header('Access-Control-Allow-Origin','http://localhost:8080');
 		res.header('content-type', 'text/javascript');
 		res.send(JSON.stringify(data));
 	});

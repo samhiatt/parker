@@ -37,6 +37,9 @@
     },
     "d3/d3.d.ts": {
       "commit": "8cd79728efa7652d934b2703feeb68bb4802aebb"
+    },
+    "react/react.d.ts": {
+      "commit": "8ea42cd8bb11863ed6f242d67c502288ebc45a7b"
     }
   }
 }

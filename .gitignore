@@ -2,6 +2,7 @@
 !.gitignore
 !.ebextensions
 node_modules
+bower_components
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
@@ -9,5 +10,6 @@ node_modules
 !.elasticbeanstalk/*.global.yml
 
 common/*.js*
+public/*.js*
 index.js*
 typings

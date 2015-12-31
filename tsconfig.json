@@ -4,13 +4,15 @@
     "noImplicitAny": true,
     "removeComments": true,
     "preserveConstEnums": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "jsx": "react"
   },
   "exclude": [
     "node_modules"
   ],
   "references": [
     "./common/schedule.ts",
-    "./common/sfsweeproutes.ts"
+    "./common/sfsweeproutes.ts",
+    "./typings/tsd.d.ts"
   ]
 }
