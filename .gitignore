@@ -1,6 +1,7 @@
 .*
 !.gitignore
 !.ebextensions
+!.bowerrc
 node_modules
 bower_components
 
